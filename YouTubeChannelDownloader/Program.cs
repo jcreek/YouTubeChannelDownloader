@@ -47,5 +47,31 @@ namespace YouTubeChannelDownloader
                 DeleteLocalFile(pathString);
             }
         }
+
+        private static async Task<List<YouTubeVideo>> CheckForNewVideosAsync()
+        {
+            // Get the current videos on the channel
+            IReadOnlyList<PlaylistVideo> videos = await _youtube.Channels.GetUploadsAsync(_channelId);
+
+            List<YouTubeVideo> indexedVideos = new List<YouTubeVideo>();
+
+            foreach (var (video, index) in videos.Reverse().WithIndex())
+            {
+                YouTubeVideo youtubeVideo = new YouTubeVideo()
+                {
+                    PlaylistVideo = video,
+                    VideoNumber = index + 1, // These are zero-indexed but for episode counts we want 1 indexing
+                };
+
+                indexedVideos.Add(youtubeVideo);
+            }
+
+            List<string> downloadedVideoIds = _db.DownloadedVideos.Select(dv => dv.DownloadedVideoId).ToList();
+
+            // Make a new list of only the videos we've not alread downloaded
+            List<YouTubeVideo> newVideos = indexedVideos.Where(v => !downloadedVideoIds.Contains(v.PlaylistVideo.Id)).ToList();
+
+            return newVideos;
+        }
         }
 }
