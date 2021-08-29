@@ -145,5 +145,24 @@ namespace YouTubeChannelDownloader
 
             Console.WriteLine("SFTP done");
         }
+
+        private static void DeleteLocalFile(string pathString)
+        {
+            try
+            {
+                // Check if file exists with its full path
+                if (File.Exists(pathString))
+                {
+                    // If file found, delete it
+                    File.Delete(pathString);
+                    Console.WriteLine("Local file deleted.");
+                }
+                else Console.WriteLine("Local file not found");
+            }
+            catch (IOException ioExp)
+            {
+                Console.WriteLine(ioExp.Message);
+            }
+        }
         }
 }
