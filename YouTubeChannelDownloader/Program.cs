@@ -181,5 +181,34 @@ namespace YouTubeChannelDownloader
 
             Console.WriteLine($"Recorded download in db of '{channelTitle} {youtubeVideo.VideoNumber} - {video.Title}'");
         }
+
+        private static string MakeValidFileName(string originalFileName)
+        {
+            char[] invalids = System.IO.Path.GetInvalidFileNameChars();
+            string validFileName = String.Join("_", originalFileName.Split(invalids, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
+
+            // Additionally remove Windows characters explicitly, in case we're running on Linux (e.g. in Docker) but need to access the files in Windows
+            string[] charsToRemove = new string[] { "<", ">", ":", "\"", "/", "\\", "|", "?", "*" };
+
+            validFileName = RemoveCharsFromString(charsToRemove, validFileName);
+
+            return validFileName;
+        }
+
+        private static string RemoveSlashesFromString(string str)
+        {
+            string[] charsToRemove = new string[] { "/", @"\" };
+
+            return RemoveCharsFromString(charsToRemove, str);
+        }
+
+        private static string RemoveCharsFromString(string[] charsToRemove, string str)
+        {
+            foreach (string c in charsToRemove)
+            {
+                str = str.Replace(c, string.Empty);
+            }
+
+            return str;
         }
 }
