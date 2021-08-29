@@ -6,5 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Creek.HelpfulExtensions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.9">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.9" />
+    <PackageReference Include="SSH.NET" Version="2020.0.1" />
+    <PackageReference Include="YoutubeExplode" Version="6.0.5" />
+    <PackageReference Include="YoutubeExplode.Converter" Version="2.1.0" />
   </ItemGroup>
 </Project>
