@@ -73,5 +73,53 @@ namespace YouTubeChannelDownloader
 
             return newVideos;
         }
+
+        private static async Task<string> DownloadVideoAsync(YouTubeVideo youtubeVideo, string channelTitle)
+        {
+            PlaylistVideo video = youtubeVideo.PlaylistVideo;
+
+            // Tequest the manifest that lists all available streams for a particular video
+            StreamManifest streamManifest = await _youtube.Videos.Streams.GetManifestAsync(video.Id);
+
+            // Filter through the streams and select the video and audio separately to get videos above 720p30
+            // Highest bitrate audio-only stream
+            IStreamInfo audioStreamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
+
+            // Highest quality MP4 video-only stream
+            IVideoStreamInfo videoStreamInfo = streamManifest
+                .GetVideoOnlyStreams()
+                .Where(s => s.Container == Container.Mp4)
+                .GetWithHighestVideoQuality();
+
+            // Put them together into a new stream collection
+            IStreamInfo[] streamInfos = new IStreamInfo[] { audioStreamInfo, videoStreamInfo };
+
+            // Generate a valid filename
+            string origFileName = $"{channelTitle} S01E{youtubeVideo.VideoNumber} - {video.Title}.{videoStreamInfo.Container.Name}";
+            string fileName = MakeValidFileName(origFileName);
+
+            Environment.SpecialFolder folder = Environment.SpecialFolder.LocalApplicationData;
+            string path = Environment.GetFolderPath(folder);
+            string pathString = $"{path}{System.IO.Path.DirectorySeparatorChar}{fileName}";
+
+            string dockerFfmpegPath = "/usr/bin/ffmpeg";
+
+            // Windows
+            //ConversionRequest request = new ConversionRequestBuilder(pathString).Build();
+
+            // Docker
+            ConversionRequest request = new ConversionRequestBuilder(pathString).SetFFmpegPath(dockerFfmpegPath).Build();
+
+            // Display progress in console
+            using (InlineProgress progress = new InlineProgress())
+            {
+                // Download and process them into one file
+                await _youtube.Videos.DownloadAsync(streamInfos, request, progress);
+            }
+
+            Console.WriteLine($"Stored video at {pathString}");
+
+            return pathString;
+        }
         }
 }
