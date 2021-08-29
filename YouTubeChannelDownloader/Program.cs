@@ -164,5 +164,22 @@ namespace YouTubeChannelDownloader
                 Console.WriteLine(ioExp.Message);
             }
         }
+
+        private static async Task RecordSuccessfulVideoDownload(YouTubeVideo youtubeVideo, string channelTitle)
+        {
+            PlaylistVideo video = youtubeVideo.PlaylistVideo;
+
+            DownloadedVideo downloadedVideo = new DownloadedVideo()
+            {
+                DownloadedVideoId = video.Id,
+                DownloadedDateTime = DateTime.Now,
+                Title = $"{channelTitle} {youtubeVideo.VideoNumber} - {video.Title}",
+            };
+
+            await _db.AddAsync(downloadedVideo);
+            await _db.SaveChangesAsync();
+
+            Console.WriteLine($"Recorded download in db of '{channelTitle} {youtubeVideo.VideoNumber} - {video.Title}'");
+        }
         }
 }
