@@ -18,9 +18,9 @@ Set the SFTP details manually in `TransferFileToNasShare` rather than reading fr
 
 To build the database, open a terminal from the project folder (not the solution folder) and run each of these commands in turn.
 
-`dotnet tool install --global dotnet-ef`
-`dotnet add package Microsoft.EntityFrameworkCore.Design`
-`dotnet ef migrations add InitialCreate`
-`dotnet ef database update`
+- `dotnet tool install --global dotnet-ef`
+- `dotnet add package Microsoft.EntityFrameworkCore.Design`
+- `dotnet ef migrations add InitialCreate`
+- `dotnet ef database update`
 
 On Windows this will create a database file for you in the folder `C:\Users\YOURUSERNAME\AppData\Local`.
