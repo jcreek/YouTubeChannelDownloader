@@ -211,4 +211,5 @@ namespace YouTubeChannelDownloader
 
             return str;
         }
+    }
 }
