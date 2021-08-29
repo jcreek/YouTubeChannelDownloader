@@ -121,5 +121,29 @@ namespace YouTubeChannelDownloader
 
             return pathString;
         }
+
+        private static void TransferFileToNasShare(string pathString)
+        {
+            SftpConfig sftpConfig = new SftpConfig()
+            {
+                Host = Environment.GetEnvironmentVariable("SFTP_HOST", EnvironmentVariableTarget.Process),
+                Port = int.Parse(Environment.GetEnvironmentVariable("SFTP_PORT", EnvironmentVariableTarget.Process)),
+                UserName = Environment.GetEnvironmentVariable("SFTP_USER", EnvironmentVariableTarget.Process),
+                Password = Environment.GetEnvironmentVariable("SFTP_PASSWORD", EnvironmentVariableTarget.Process),
+            };
+
+            Console.WriteLine($"Path: {pathString}");
+
+            string origFileName = RemoveSlashesFromString(pathString);
+            string fileName = MakeValidFileName(origFileName);
+
+            Console.WriteLine($"Filename: {fileName}");
+
+            SftpService sftpService = new SftpService(null, sftpConfig);
+            string destinationFolder = Environment.GetEnvironmentVariable("SFTP_DESTINATIONFOLDER", EnvironmentVariableTarget.Process);
+            sftpService.UploadFile(pathString, destinationFolder, fileName);
+
+            Console.WriteLine("SFTP done");
+        }
         }
 }
