@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+  youtubechanneldownloader:
+    container_name: youtubechanneldownloader
+    build:
+      context: .
+      dockerfile: YouTubeChannelDownloader/Dockerfile
+      network: host # No need for its own network interface, just share the host's for full download speeds
+    volumes:
+      - ./YouTubeChannelDownloader/db:/db
+      - ./YouTubeChannelDownloader/logs:/app/logs
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - CHANNEL_ID= # Find these by viewing the source html of the channel page and searching for 'externalid'
+      - SFTP_HOST=
+      - SFTP_PORT=22
+      - SFTP_USER=
+      - SFTP_PASSWORD=
+      - SFTP_DESTINATIONFOLDER= # in the form /foldername
