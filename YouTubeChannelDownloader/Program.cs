@@ -39,12 +39,36 @@ namespace YouTubeChannelDownloader
             foreach (YouTubeVideo video in newVideos)
             {
                 Console.WriteLine($"Starting {channel.Title} - {video.PlaylistVideo.Title}");
-                string pathString = await DownloadVideoAsync(video, channel.Title);
-                await RecordSuccessfulVideoDownload(video, channel.Title);
+                try
+                {
+                    string pathString = await DownloadVideoAsync(video, channel.Title);
+                    await RecordSuccessfulVideoDownload(video, channel.Title);
 
-                // TODO? - set this up with a discard to run in a separate thread so more downloads can happen, need to be careful of error handling and logging
-                TransferFileToNasShare(pathString);
-                DeleteLocalFile(pathString);
+                    // TODO? - set this up with a discard to run in a separate thread so more downloads can happen, need to be careful of error handling and logging
+                    TransferFileToNasShare(pathString);
+                    DeleteLocalFile(pathString);
+                }
+                catch (Exception ex)
+                {
+                    // Wait a few minutes then try again
+                    int minutesToWait = 2;
+                    await Task.Delay(minutesToWait * 60 * 1000);
+
+                    try
+                    {
+                        string pathString = await DownloadVideoAsync(video, channel.Title);
+                        await RecordSuccessfulVideoDownload(video, channel.Title);
+
+                        // TODO? - set this up with a discard to run in a separate thread so more downloads can happen, need to be careful of error handling and logging
+                        TransferFileToNasShare(pathString);
+                        DeleteLocalFile(pathString);
+                    }
+                    catch (Exception ex2)
+                    {
+                        // Give up on this video, and log the error
+                        Console.WriteLine($"Unable to process video after retrying due to error: {ex2.Message}");
+                    }
+                }
             }
         }
 
